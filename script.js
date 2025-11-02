@@ -54,37 +54,6 @@ function loadState(){
 
 
 let state = loadState();
-/* === STEP 1: Sync remoto (lettura live) se Firebase è presente === */
-if (window.FirebaseAuth && window.Remote) {
-  FirebaseAuth.onChange(async (user)=>{
-    if (!user) {
-      // ⚠️ Sostituisci con un tuo utente/email creato in Firebase Auth
-      try { 
-        await FirebaseAuth.login("tua_email@esempio.it", "tuaPassword");
-      } catch(e) { 
-        console.warn("Login richiesto o credenziali mancanti:", e);
-      }
-      return;
-    }
-
-    // Chiudi eventuali vecchie sottoscrizioni
-    window.__unsubAttivi   && window.__unsubAttivi();
-    window.__unsubArchivio && window.__unsubArchivio();
-
-    // Attivi (archived=false)
-    window.__unsubAttivi = Remote.subscribeJobs({ archived:false }, (items)=>{
-      state.attivi = items.map(j => ({ ...j, id: j.id }));
-      refreshAll(searchInput.value.toLowerCase(), filterState.value);
-    });
-
-    // Archivio (archived=true)
-    window.__unsubArchivio = Remote.subscribeJobs({ archived:true }, (items)=>{
-      state.archivio = items.map(j => ({ ...j, id: j.id }));
-      refreshAll(searchInput.value.toLowerCase(), filterState.value);
-    });
-  });
-}
-
 const jobTableBody = document.getElementById("jobTableBody");
 const archiveTableBody = document.getElementById("archiveTableBody");
 const totalCount = document.getElementById("totalCount");
@@ -275,54 +244,37 @@ function renderBoard(filterText = "", filterStato = "") {
   }
 }
 
-function openDetail(id){
-  // Normalizza l'ID per supportare sia numeri (locale) sia stringhe (Firebase)
-  const jid = String(id);
-  const job = (state.attivi || []).find(j => String(j.id) === jid);
-  if (!job) return;
-
-  // Salva l'ID selezionato come stringa (evita mismatch)
-  selectedJobId = String(job.id);
-
+function openDetail(id){const job=state.attivi.find(j=>j.id===Number(id));if(!job) return;
+  selectedJobId=job.id;
   detailBody.classList.remove("hidden");
-  detailTitle.textContent = job.cliente + " – " + job.mobile;
+  detailTitle.textContent=job.cliente+" – "+job.mobile;
   detailBody.dataset.jobId = String(job.id);
-  detailSubtitle.textContent = job.stato;
+  detailSubtitle.textContent=job.stato;dCliente.textContent=job.cliente;dMobile.textContent=job.mobile;dArch.textContent=job.architetto||"—";dStato.value=job.stato;
 
-  dCliente.textContent = job.cliente;
-  dMobile.textContent  = job.mobile;
-  dArch.textContent    = job.architetto || "—";
-  dStato.value         = job.stato;
+
 
   // Documenti: delega al modulo
   Documents.onDetailOpen(job);
 
-  dDataPosa.value     = job.dataPosa   || "";
-  dDataFattura.value  = job.fattura    || "";
-  dDataPagato.value   = job.pagato     || "";
-  dMancanze.value     = job.mancanze   || "";
-  showConditional(job.stato);
-
-  materialBody.innerHTML = "";
-  (job.materiali || []).forEach(mat => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${deriveFornitore(mat)}</td>
-      <td><input class="inline-input" data-mat="${mat.id}" data-field="descrizione" value="${mat.descrizione||""}"></td>
-      <td>
-        <select class="inline-input" data-mat="${mat.id}" data-field="stato">
-          <option value="🕓" ${mat.stato==="🕓"?"selected":""}>🕓 Da ordinare</option>
-          <option value="🚚" ${mat.stato==="🚚"?"selected":""}>🚚 In arrivo</option>
-          <option value="✅" ${mat.stato==="✅"?"selected":""}>✅ Arrivato</option>
-        </select>
-      </td>
-      <td><button class="ghost-btn small" data-matdetail="${mat.id}">🔍</button></td>
-    `;
-    materialBody.appendChild(tr);
-  });
-}
 
 
+  
+  
+  dDataPosa.value=job.dataPosa||"";dDataFattura.value=job.fattura||"";dDataPagato.value=job.pagato||"";dMancanze.value=job.mancanze||"";showConditional(job.stato);materialBody.innerHTML="";(job.materiali||[]).forEach(mat=>{const tr=document.createElement("tr");
+  tr.innerHTML = `
+  <td>${deriveFornitore(mat)}</td>
+  <td><input class="inline-input" data-mat="${mat.id}" data-field="descrizione" value="${mat.descrizione||""}"></td>
+  <td>
+    <select class="inline-input" data-mat="${mat.id}" data-field="stato">
+      <option value="🕓" ${mat.stato==="🕓"?"selected":""}>🕓 Da ordinare</option>
+      <option value="🚚" ${mat.stato==="🚚"?"selected":""}>🚚 In arrivo</option>
+      <option value="✅" ${mat.stato==="✅"?"selected":""}>✅ Arrivato</option>
+    </select>
+  </td>
+  <td><button class="ghost-btn small" data-matdetail="${mat.id}">🔍</button></td>
+`;
+
+  materialBody.appendChild(tr);});}
 function showConditional(stato){dPosaWrapper.classList.add("hidden");dFatturaWrapper.classList.add("hidden");dPagatoWrapper.classList.add("hidden");if(stato==="Programmato posa") dPosaWrapper.classList.remove("hidden");if(stato==="Fattura emessa") dFatturaWrapper.classList.remove("hidden");if(stato==="Pagato") dPagatoWrapper.classList.remove("hidden");}
 
 function openMaterialModal(jobId,matId){
