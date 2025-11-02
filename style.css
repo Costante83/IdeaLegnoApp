@@ -1,0 +1,261 @@
+*{box-sizing:border-box}
+body{margin:0;background:#1f1f1f;color:#f5f5f5;font-family:'Inter',system-ui,sans-serif}
+.app-shell{min-height:100vh;display:flex;flex-direction:column}
+.topbar{display:flex;justify-content:space-between;align-items:center;background:#252525;padding:.7rem 1rem;gap:1rem;border-bottom:1px solid #3a3a3a}
+.brand{display:flex;gap:.75rem;align-items:center}
+.brand-icon{width:36px;height:36px;border-radius:12px;background:#c8703d;display:grid;place-items:center;font-weight:700}
+.brand-text h1{margin:0;font-size:.95rem}
+.brand-text p{margin:0;font-size:.65rem;opacity:.7}
+.top-actions{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+.top-actions input,.top-actions select{background:#2d2d2d;border:1px solid #3a3a3a;border-radius:6px;color:#fff;padding:.4rem .7rem}
+.primary-btn{background:#c8703d;border:none;color:#fff;padding:.45rem .9rem;border-radius:6px;font-weight:600;cursor:pointer}
+.ghost-btn{background:transparent;border:1px dashed #3a3a3a;color:#f5f5f5;border-radius:6px;padding:.3rem .5rem;font-size:.68rem;cursor:pointer}
+.main-layout{flex:1;display:flex;min-height:0}
+.list-panel,.board-panel,.archive-panel{flex:0 0 58%;border-right:1px solid #2a2a2a;display:flex;flex-direction:column}
+.detail-panel{flex:1;background:#191919;display:flex;flex-direction:column;min-width:270px}
+.list-header{padding:.75rem 1rem .25rem}
+.list-title{margin:0;font-weight:600}
+.list-subtitle{margin:.2rem 0 0;font-size:.68rem;opacity:.65}
+.table-wrapper{overflow:auto;flex:1}
+table{width:100%;border-collapse:collapse;font-size:.78rem}
+thead{background:#292929}
+thead th{text-align:left;padding:.5rem .7rem;border-bottom:1px solid #2f2f2f;white-space:nowrap}
+tbody tr{border-bottom:1px solid #2a2a2a;cursor:pointer}
+tbody tr:hover{background:#252525}
+tbody td{padding:.45rem .7rem;vertical-align:middle}
+.badge{display:inline-flex;align-items:center;gap:.25rem;background:rgba(255,255,255,.05);border-radius:999px;padding:.1rem .6rem .15rem;font-size:.68rem}
+.status-Misure{background:#3b3b3b}
+.status-Progetto{background:#205e96}
+.status-Preventivo{background:#83611e}
+.status-Preventivo-confermato{background:#b38736}
+.status-Ordine-materiali{background:#4f4b9f}
+.status-Materiale-consegnato{background:#3d8560}
+.status-In-lavorazione{background:#246189}
+.status-In-verniciatura{background:#7b3f79}
+.status-Materiale-pronto{background:#4a8b5c}
+.status-Programmato-posa{background:#7c6930}
+.status-Posato{background:#477a89}
+.status-Da-completare{background:#8c3323}
+.status-Finito{background:#2f8841}
+.status-Fattura-emessa{background:#a44f2b}
+.status-Pagato{background:#39823a}
+.detail-header{padding:.9rem 1rem .3rem;border-bottom:1px solid #2a2a2a}
+.detail-title{margin:0;font-weight:600}
+.detail-subtitle{margin:.25rem 0 0;font-size:.7rem;opacity:.6}
+.detail-body{padding:.75rem 1rem 1rem;overflow-y:auto;display:flex;flex-direction:column;gap:1rem}
+.detail-section h3{margin:0 0 .5rem;font-size:.75rem;text-transform:uppercase;opacity:.8}
+.detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:.6rem}
+.detail-grid label{font-size:.6rem;text-transform:uppercase;opacity:.5}
+.detail-grid input,.detail-grid select{background:#111;border:1px solid #2a2a2a;border-radius:6px;padding:.25rem .4rem;color:#fff;font-size:.7rem}
+.mini-table{width:100%;border-collapse:collapse;font-size:.68rem}
+.mini-table th,.mini-table td{border-bottom:1px solid #2a2a2a;padding:.3rem .35rem}
+textarea{width:100%;background:#111;border:1px solid #2a2a2a;border-radius:6px;color:#fff;padding:.5rem;font-size:.7rem}
+.hidden{display:none!important}
+.board-body{overflow:auto;display:flex;flex-direction:column;gap:.5rem;padding:.5rem 1rem 1rem}
+.board-row{background:#242424;border:1px solid #2c2c2c;border-radius:10px;padding:.45rem .6rem .6rem}
+.board-title{margin:0;font-size:1rem;font-weight:600}
+.board-sub{margin:.1rem 0 .4rem;opacity:.5;font-size:.6rem}
+.stage-line{display:flex;flex-wrap:wrap;gap:.25rem}
+.stage-pill{padding:.12rem .4rem;border-radius:999px;font-size:.6rem;background:#333;opacity:.55}
+.stage-pill.done{background:#2f8841;opacity:1}
+.stage-pill.current{background:#c8703d;opacity:1}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:grid;place-items:center;z-index:999}
+.modal-content{background:#202020;border:1px solid #3a3a3a;border-radius:10px;width:min(700px,95vw);max-height:85vh;display:flex;flex-direction:column}
+.modal-header{display:flex;justify-content:space-between;align-items:center;padding:.6rem .8rem;border-bottom:1px solid #333}
+.modal-body{padding:.5rem .8rem;display:flex;flex-direction:column;gap:.35rem;overflow-y:auto}
+.modal-body input,.modal-body select{background:#111;border:1px solid #2a2a2a;border-radius:6px;color:#fff;padding:.35rem .4rem}
+.modal-footer{padding:.5rem .8rem;border-top:1px solid #333;display:flex;justify-content:flex-end}
+.small{padding:.2rem .4rem}
+.inline-input{width:100%;background:#111;border:1px solid #2a2a2a;border-radius:6px;color:#fff;font-size:.65rem;padding:.2rem .3rem}
+.toast{position:fixed;bottom:18px;right:18px;background:#2a2a2a;color:#fff;padding:.4rem .7rem;border-radius:6px;font-size:.7rem;border:1px solid #3a3a3a;opacity:0;transition:.2s;z-index:9999}
+.toast.show{opacity:1}
+.trash-btn{background:#c13838;border:none;color:#fff;border-radius:5px;padding:.2rem .4rem;font-size:.65rem;cursor:pointer}
+.restore-btn{background:#3a7b3a;border:none;color:#fff;border-radius:5px;padding:.15rem .5rem;font-size:.65rem;cursor:pointer}
+
+/* ============= Documenti ============= */
+.doc-categories{display:flex;gap:.5rem;flex-wrap:wrap;margin:.5rem 0}
+.doc-categories .doc-cat-btn{padding:.35rem .6rem;border:1px solid #3a3a3a;border-radius:.5rem;background:transparent;color:#f5f5f5;cursor:pointer}
+.doc-categories .doc-cat-btn.active{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.08);font-weight:600}
+.doc-actions{display:flex;align-items:center;gap:.5rem;margin:.5rem 0}
+.doc-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.75rem;margin-top:.5rem}
+.doc-card{border:1px solid #2a2a2a;border-radius:.6rem;padding:.5rem;display:flex;gap:.6rem;align-items:center;background:#1b1b1b}
+.doc-thumb{width:46px;height:46px;border-radius:.35rem;object-fit:cover;background:#2b2b2b;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+.doc-meta{flex:1;min-width:0}
+.doc-meta .name{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.doc-meta .sub{font-size:.85em;opacity:.7}
+.doc-actions-inline{display:flex;gap:.35rem}
+.doc-actions-inline button{padding:.25rem .45rem}
+/* === Documenti: griglia e anteprime migliorate === */
+#docList.doc-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.doc-card{
+  background: var(--card-bg, #1b1b1b);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.doc-card:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0,0,0,.25);
+}
+.doc-card.empty{
+  grid-column: 1/-1;
+  padding: 16px;
+}
+
+.thumb-wrap{
+  position: relative;
+  aspect-ratio: 4 / 3;
+  background: #0f0f0f;
+  display: grid;
+  place-items: center;
+}
+.doc-thumb-img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.doc-thumb-icon{
+  font-size: 42px;
+  opacity: .8;
+}
+
+.badge.badge-ext{
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  background: rgba(0,0,0,.6);
+  color: #fff;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+}
+
+.doc-meta{
+  padding: 10px 12px 6px;
+}
+.doc-name{
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.doc-meta .sub{
+  opacity: .7;
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.doc-actions-inline{
+  display: flex;
+  gap: 6px;
+  padding: 8px 10px 12px;
+  margin-top: auto;
+}
+.doc-actions-inline button{
+  background: #252525;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  padding: 6px 10px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.doc-actions-inline button:hover{
+  background: #2f2f2f;
+}
+
+/* drag&drop feedback */
+#docList.drag .doc-card{ opacity:.5; }
+
+
+
+
+/* === Vista "Avanzamento" full width === */
+
+/* nascondi il pannello dei dettagli */
+body.view-progress .detail-panel {
+  display: none !important;
+}
+
+/* Allarga la colonna Avanzamento quando i dettagli sono nascosti */
+body.view-progress #boardView {
+  flex: 1 1 auto !important;
+  max-width: none !important;
+  border-right: none !important;
+}
+
+
+
+/* allarga l'area contenuti a tutta larghezza (adatta i selettori che usi) */
+body.view-progress #avanzamento,
+body.view-progress .progress-wrapper,
+body.view-progress .main-col,
+body.view-progress .content {
+  width: 100% !important;
+  max-width: none !important;
+  grid-column: 1 / -1 !important;
+  flex: 1 1 auto !important;
+}
+
+/* se usi una grid a colonne, comprimila a 1 colonna */
+body.view-progress .layout,
+body.view-progress .grid-layout {
+  grid-template-columns: 1fr !important;
+  gap: 16px !important;
+}
+
+/* opzionale: margini laterali zero */
+body.view-progress .page,
+body.view-progress .container {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+/* --- FIX Documenti: thumbs + pulsanti visibili --- */
+
+/* la card non deve tagliare il contenuto sotto (pulsanti) */
+.doc-card{
+  overflow: visible !important;   /* prima era hidden */
+}
+
+/* il "taglio" va solo sulla miniatura */
+.thumb-wrap{
+  aspect-ratio: 4 / 3;
+  overflow: hidden;               /* spostato qui */
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  background: #0f0f0f;
+}
+
+/* evita deformazioni: l'immagine sta dentro senza stirarsi */
+.doc-thumb-img{
+  width: 100%;
+  height: 100%;
+  object-fit: contain;            /* prima era cover o ereditato */
+  background: #000;               /* evita “trasparenze” antiestetiche */
+}
+
+/* assicura che la griglia allinei gli item dall'alto */
+#docList.doc-grid{
+  align-items: start;
+}
+
+/* margine tra .doc-meta e i pulsanti per non “tagliarli” */
+.doc-actions-inline{
+  margin-top: 6px;
+}
+
+
+
+
+
+@media(max-width:992px){.main-layout{flex-direction:column}.list-panel,.board-panel,.archive-panel{flex:none}.detail-panel{min-height:360px}.hide-mobile{display:none}}
+@media(max-width:680px){.topbar{flex-direction:column;align-items:flex-start}.top-actions{width:100%}.top-actions input{flex:1}.hide-small{display:none}}
