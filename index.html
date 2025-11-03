@@ -81,10 +81,10 @@
           </table>
         </div>
       </section>
-
       <aside class="detail-panel">
         <div class="detail-header">
           <p class="detail-title" id="detailTitle">Seleziona un lavoro</p>
+          <button id="btnFatture" class="ghost-btn">📄 Fatture</button>
           <p class="detail-subtitle" id="detailSubtitle">dalla lista a sinistra</p>
         </div>
         <div class="detail-body hidden" id="detailBody">
@@ -104,6 +104,7 @@
                 <label>Architetto</label>
                 <p id="dArch">—</p>
               </div>
+              
               <div>
                 <label>Stato attuale</label>
                 <select id="dStato"></select>
@@ -153,7 +154,7 @@
               <button type="button" class="doc-cat-btn" data-cat="preventivi">Preventivi</button>
               <button type="button" class="doc-cat-btn" data-cat="ordini">Ordini</button>
             </div>
-
+            
             <!-- Azioni -->
             <div class="doc-actions">
               <input type="file" id="docUploadInput" accept=".pdf,image/jpeg,image/png" multiple />
@@ -167,6 +168,32 @@
             <!-- cat attiva -->
             <input type="hidden" id="docActiveCat" value="rilievi" />
           </div>
+          <!-- ===== FATTURE ===== -->
+          <section id="fattureSection" class="card">
+            <h3>Fatture</h3>
+
+            <div class="fatture-tools">
+              <button id="addFatturaBtn" class="ghost-btn">+ Aggiungi fattura</button>
+              <span id="fattureTotaleInfo" class="muted"></span>
+            </div>
+
+            <table id="fattureTable" class="table-compact">
+              <thead>
+                <tr>
+                  <th style="width:90px">Numero</th>
+                  <th style="width:130px">Data</th>
+                  <th style="width:90px">% importo</th>
+                  <th style="width:90px">Pagata</th>
+                  <th style="width:140px">Data pagamento</th>
+                  <th>Note</th> <!-- ← AGGIUNTO per allineare alle 7 celle -->
+                  <th style="width:48px"></th>
+                </tr>
+              </thead>
+              <tbody><!-- righe generate via JS --></tbody>
+            </table>
+          </section>
+          <!-- ===== /FATTURE ===== -->
+
 
         </div>
       </aside>

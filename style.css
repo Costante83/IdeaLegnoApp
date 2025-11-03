@@ -252,6 +252,56 @@ body.view-progress .container {
 .doc-actions-inline{
   margin-top: 6px;
 }
+/* Fatture: badge numeri in lista */
+.badge-inv{
+  display:inline-block; padding:0 6px; line-height:18px; font-size:12px;
+  border:1px solid rgba(255,255,255,.25); border-radius:10px; margin-left:4px;
+  background:#2a2a2a; opacity:.9;
+}
+.badge-inv.paid{ background:#1f3b1f; border-color:#2e6e2e; }
+/* ===== FATTURE (detaglio) ===== */
+#fattureSection.card{ padding:12px 12px 8px; margin-top:14px; }
+#fattureSection h3{ margin:0 0 8px; }
+#fattureSection .muted{ opacity:.7; margin-left:8px; }
+
+#fattureTable{ width:100%; border-collapse: collapse; }
+#fattureTable th, #fattureTable td{
+  border-top:1px solid rgba(255,255,255,.08);
+  padding:6px 8px;
+  vertical-align: middle;
+}
+#fattureTable input[type="text"],
+#fattureTable input[type="date"],
+#fattureTable input[type="number"]{
+  width:100%;
+  background:#1c1c1c; border:1px solid rgba(255,255,255,.12);
+  color:inherit; border-radius:8px; padding:6px 8px; height:32px;
+}
+#fattureTable input[type="checkbox"]{ transform: scale(1.2); }
+#fattureTable .del-row{
+  width:32px; height:32px; border-radius:8px; border:1px solid rgba(255,255,255,.12);
+  background:#252525; cursor:pointer;
+}
+#fattureTable .del-row:hover{ background:#2f2f2f; }
+
+/* badge stile lista (se non già presenti) */
+.badge-inv{
+  display:inline-block; padding:0 5px; line-height:18px; font-size:12px;margin-left:3px;
+  border:1px solid rgba(255,255,255,.25); border-radius:10px; margin-left:4px;
+  background:#2a2a2a; opacity:.9;
+}
+.badge-inv.paid{ background:#1f3b1f; border-color:#2e6e2e; }
+.fatt-inline{ margin-right:-5px; white-space:nowrap; }
+.fatt-inline .badge-inv{ margin-left:3px; }
+@media (max-width: 900px){
+  /* di base nascondi la sezione fatture su mobile */
+  #fattureSection{ display:none; }
+  /* quando attivo: mostra solo fatture a tutta larghezza */
+  body.show-fatture .detail-panel > *:not(#fattureSection){ display:none !important; }
+  body.show-fatture #fattureSection{ display:block !important; }
+  body.show-fatture #fattureSection{ margin:0; padding:12px; }
+}
+.list-table td:last-child{ padding-left:6px; }  /* avvicina le icone alla cella precedente */
 
 
 

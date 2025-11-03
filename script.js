@@ -54,6 +54,31 @@ function loadState(){
 
 
 let state = loadState();
+
+/* ==== MIGRAZIONE FATTURE (retro-compatibile) ==== */
+function migrateInvoicesOnArray(arr){
+  (arr || []).forEach(job => {
+    if (!job.fatture) job.fatture = [];
+    // Se esiste il vecchio campo singolo "fattura" lo trasformo in una fattura base
+    if (job.fattura && !job.fatture.length){
+      job.fatture.push({
+        data: job.fattura,     // es. "2025-11-01"
+        percent: null,         // la gestiremo nello STEP 2
+        importo: null,
+        numero: null,
+        pagata: !!job.pagato,  // se avevi un flag/ data pagato
+        data_pagamento: job.dataPagato || null,
+        note: ""
+      });
+    }
+  });
+}
+function migrateInvoices(){
+  migrateInvoicesOnArray(state.attivi);
+  migrateInvoicesOnArray(state.archivio);
+}
+migrateInvoices();
+
 const jobTableBody = document.getElementById("jobTableBody");
 const archiveTableBody = document.getElementById("archiveTableBody");
 const totalCount = document.getElementById("totalCount");
@@ -95,6 +120,16 @@ const materialDetailBody = document.getElementById("materialDetailBody");
 const closeMaterialBtn = document.getElementById("closeMaterialBtn");
 const addSubMaterialBtn = document.getElementById("addSubMaterialBtn");
 const addMaterialBtn = document.getElementById("addMaterialBtn");
+const btnFatture = document.getElementById("btnFatture");
+btnFatture && btnFatture.addEventListener("click", ()=>{
+  document.body.classList.toggle("show-fatture");
+});
+
+// Quando cambi commessa o cambi vista, chiudi la vista fatture "full"
+function closeFattureView(){
+  document.body.classList.remove("show-fatture");
+}
+
 const toast = document.getElementById("toast");
 let selectedJobId = null;
 let selectedMaterialRef = { jobId:null, materialId:null };
@@ -188,7 +223,70 @@ function deriveFornitore(mat){
 }
 
 function renderList(filterText="", filterStato=""){jobTableBody.innerHTML="";let count=0;state.attivi.forEach(job=>{const matchText=job.cliente.toLowerCase().includes(filterText)||job.mobile.toLowerCase().includes(filterText)||(job.architetto||"").toLowerCase().includes(filterText);const matchState = filterStato === "" || job.stato === filterStato;
-if(matchText && matchState){const tr=document.createElement("tr");tr.innerHTML=`<td>${job.cliente}</td><td>${job.mobile}</td><td class="hide-mobile">${job.architetto||"—"}</td><td><span class="badge ${statoToClass(job.stato)}">${job.stato}</span></td><td class="hide-mobile">${job.dataPosa||"—"}</td><td class="hide-small">${job.fattura?("🧾 "+job.fattura):"—"}</td><td style="white-space:nowrap"><button class="ghost-btn small" data-job="${job.id}">🔍</button><button class="trash-btn" data-archive="${job.id}">🗑️</button></td>`;jobTableBody.appendChild(tr);count++;}});totalCount.textContent=count+" lavori";}
+if(matchText && matchState){const tr=document.createElement("tr");tr.innerHTML=`<td>${job.cliente}</td><td>${job.mobile}</td><td class="hide-mobile">${job.architetto||"—"}</td><td><span class="badge ${statoToClass(job.stato)}">${job.stato}</span></td><td class="hide-mobile">${job.dataPosa||"—"}</td><td class="hide-small"><span class="fatt-inline">${fattCell(job)}</span>
+</td><td style="white-space:nowrap"><button class="ghost-btn small" data-job="${job.id}">🔍</button><button class="trash-btn" data-archive="${job.id}">🗑️</button></td>`;jobTableBody.appendChild(tr);count++;}});totalCount.textContent=count+" lavori";}
+
+/* ==== FATTURE: cella lista (frazione + badge numeri) ==== */
+function fattCell(job){
+  const fatt = job.fatture || [];
+  if (!fatt.length) return "—";
+
+  const paid = fatt.filter(f => !!f.pagata).length;
+
+  // badge: usa f.numero se presente, altrimenti indice 1-based
+  const badges = fatt.map((f, idx) => {
+    const n = (f.numero != null && f.numero !== "") ? String(f.numero) : String(idx + 1);
+    const cls = f.pagata ? 'badge-inv paid' : 'badge-inv';
+    const title = f.pagata ? 'Pagata' : 'Da pagare';
+    return `<span class="${cls}" title="${title}">#${n}</span>`;
+  }).join(" ");
+
+  return `🧾 ${paid}/${fatt.length} ${badges}`;
+}
+/* ===== FATTURE — helpers ===== */
+const fattTableBody   = document.querySelector("#fattureTable tbody");
+const addFatturaBtn   = document.getElementById("addFatturaBtn");
+const fattTotaleInfo  = document.getElementById("fattureTotaleInfo");
+
+// oggi in formato YYYY-MM-DD
+function todayISO(){
+  const d = new Date();
+  return d.toISOString().slice(0,10);
+}
+
+// Somma % pagate; se >=100 → stato = "Pagato"
+function checkAutoPagato(job){
+  const fatt = job.fatture || [];
+  const totPaid = fatt.reduce((acc,f)=> acc + (f.pagata ? (Number(f.percent)||0) : 0), 0);
+  if (totPaid >= 100 && job.stato !== "Pagato"){
+    job.stato = "Pagato";
+    // aggiorna select stato nel dettaglio se presente
+    if (typeof dStato !== "undefined" && dStato) dStato.value = "Pagato";
+    showToast && showToast("✅ Fatture al 100%: stato impostato a Pagato");
+  }
+  return totPaid;
+}
+
+/* Render tabella fatture nel dettaglio */
+function renderFatture(job){
+  if (!job.fatture) job.fatture = [];
+  const rows = job.fatture.map((f,i)=>`
+    <tr data-i="${i}">
+      <td><input type="text"   class="f-num"   value="${f.numero??""}"  placeholder="es. 1025"></td>
+      <td><input type="date"   class="f-data"  value="${f.data??""}"></td>
+      <td><input type="number" class="f-perc"  value="${f.percent??""}" min="0" max="100" step="1" placeholder="%"></td>
+      <td style="text-align:center"><input type="checkbox" class="f-paid" ${f.pagata?"checked":""}></td>
+      <td><input type="date"   class="f-dpay"  value="${f.data_pagamento??""}"></td>
+      <td><input type="text"   class="f-note"  value="${f.note??""}" placeholder="note"></td>
+      <td><button class="del-row" title="Elimina">✖</button></td>
+    </tr>
+  `).join("");
+  fattTableBody.innerHTML = rows || `<tr><td colspan="7" class="muted">Nessuna fattura</td></tr>`;
+
+  // mostra totale % pagate
+  const totPaid = job.fatture.reduce((acc,f)=> acc + (f.pagata ? (Number(f.percent)||0) : 0), 0);
+  fattTotaleInfo.textContent = `Pagato: ${totPaid}%`;
+}
 
 // render avanzamento — versione migliorata con emoji e font leggibile
 function renderBoard(filterText = "", filterStato = "") {
@@ -245,6 +343,7 @@ function renderBoard(filterText = "", filterStato = "") {
 }
 
 function openDetail(id){const job=state.attivi.find(j=>j.id===Number(id));if(!job) return;
+  closeFattureView();
   selectedJobId=job.id;
   detailBody.classList.remove("hidden");
   detailTitle.textContent=job.cliente+" – "+job.mobile;
@@ -255,6 +354,8 @@ function openDetail(id){const job=state.attivi.find(j=>j.id===Number(id));if(!jo
 
   // Documenti: delega al modulo
   Documents.onDetailOpen(job);
+  renderFatture(job);
+
 
 
 
@@ -367,6 +468,7 @@ viewBoardBtn.addEventListener("click", ()=>{
   boardView.classList.remove("hidden");
   viewListBtn.classList.remove("hidden");
   setViewProgress(true);
+  closeFattureView();
   refreshAll(searchInput.value.toLowerCase(), filterState.value);
 });
 viewArchiveBtn.addEventListener("click", ()=>{
@@ -376,6 +478,7 @@ viewArchiveBtn.addEventListener("click", ()=>{
   archiveView.classList.remove("hidden");
   viewListBtn.classList.remove("hidden");
   setViewProgress(false);
+  closeFattureView();
   refreshAll(searchInput.value.toLowerCase(), filterState.value);
 });
 viewListBtn.addEventListener("click", ()=>{
@@ -385,6 +488,7 @@ viewListBtn.addEventListener("click", ()=>{
   archiveView.classList.add("hidden");
   viewListBtn.classList.add("hidden");
   setViewProgress(false);
+  closeFattureView();
   refreshAll(searchInput.value.toLowerCase(), filterState.value);
 });
 dStato.addEventListener("change", ()=>{
@@ -433,6 +537,88 @@ addMaterialBtn.addEventListener("click", ()=>{
   saveState();
   openDetail(selectedJobId);
 });
+
+// Aggiungi nuova fattura
+if (addFatturaBtn){
+  addFatturaBtn.addEventListener("click", ()=>{
+    const job = (state.attivi||[]).find(j => String(j.id) === String(selectedJobId));
+    if (!job) return;
+    if (!job.fatture) job.fatture = [];
+    job.fatture.push({
+      numero: "", data: todayISO(), percent: "", pagata: false, data_pagamento: "", note: ""
+    });
+    if (typeof saveJob === "function"){ saveJob(job); }
+    if (typeof saveState === "function"){ saveState(); }
+    renderFatture(job);
+    refreshAll(searchInput.value.toLowerCase(), filterState.value);
+  });
+}
+
+// Modifiche/Elimina nella tabella (delegato)
+if (fattTableBody){
+  fattTableBody.addEventListener("input", (e)=>{
+    // Non re-renderizzare mentre si digita: niente flicker, niente caret che salta.
+    // Ignora i checkbox (per quelli c’è il listener "change").
+    if (e.target.classList.contains("f-paid") || e.target.classList.contains("f-dpay")) return;
+
+    const tr = e.target.closest("tr[data-i]"); if (!tr) return;
+    const i  = Number(tr.dataset.i);
+    const job = (state.attivi||[]).find(j => String(j.id) === String(selectedJobId));
+    if (!job || !job.fatture || !job.fatture[i]) return;
+
+    const f = job.fatture[i];
+
+    if (e.target.classList.contains("f-num"))  f.numero = e.target.value.trim();
+    if (e.target.classList.contains("f-data")) f.data   = e.target.value;
+    if (e.target.classList.contains("f-perc")) f.percent= e.target.value;
+    if (e.target.classList.contains("f-note")) f.note   = e.target.value;
+
+    // Salva senza re-render per non perdere il focus
+    if (typeof saveJob === "function"){ saveJob(job); }
+    if (typeof saveState === "function"){ saveState(); }
+    // NIENTE renderFatture() qui
+  });
+
+
+  fattTableBody.addEventListener("change", (e)=>{
+    const tr = e.target.closest("tr[data-i]"); if (!tr) return;
+    const i  = Number(tr.dataset.i);
+    const job = (state.attivi||[]).find(j => String(j.id) === String(selectedJobId));
+    if (!job || !job.fatture || !job.fatture[i]) return;
+
+    const f = job.fatture[i];
+
+    if (e.target.classList.contains("f-paid")){
+      f.pagata = e.target.checked;
+      if (f.pagata && !f.data_pagamento) f.data_pagamento = todayISO();
+      if (!f.pagata) f.data_pagamento = f.data_pagamento || "";
+    }
+    if (e.target.classList.contains("f-dpay")) f.data_pagamento = e.target.value;
+
+    const totPaid = checkAutoPagato(job);
+
+    if (typeof saveJob === "function"){ saveJob(job); }
+    if (typeof saveState === "function"){ saveState(); }
+    renderFatture(job);
+    refreshAll(searchInput.value.toLowerCase(), filterState.value);
+  });
+
+  fattTableBody.addEventListener("click", (e)=>{
+    if (!e.target.classList.contains("del-row")) return;
+    const tr = e.target.closest("tr[data-i]"); if (!tr) return;
+    const i  = Number(tr.dataset.i);
+    const job = (state.attivi||[]).find(j => String(j.id) === String(selectedJobId));
+    if (!job || !job.fatture) return;
+    if (!confirm("Eliminare questa fattura?")) return;
+    job.fatture.splice(i,1);
+    checkAutoPagato(job);
+    if (typeof saveJob === "function"){ saveJob(job); }
+    if (typeof saveState === "function"){ saveState(); }
+    renderFatture(job);
+    refreshAll(searchInput.value.toLowerCase(), filterState.value);
+  });
+}
+
 newJobBtn.addEventListener("click", ()=>{
   newJobModal.classList.remove("hidden");
   njCliente.value="";njMobile.value="";njArch.value="";njStato.value="Misure";
