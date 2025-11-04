@@ -64,7 +64,6 @@ const STATI = [
   "Posato",
   "Da completare",
   "Finito",
-  "Fattura emessa",
   "Pagato",
 ];
 
@@ -432,12 +431,8 @@ function todayISO() {
  */
 function showConditional(stato) {
   dom.dPosaWrapper.classList.add("hidden");
-  dom.dFatturaWrapper.classList.add("hidden");
-  dom.dPagatoWrapper.classList.add("hidden");
-
+  
   if (stato === "Programmato posa") dom.dPosaWrapper.classList.remove("hidden");
-  if (stato === "Fattura emessa") dom.dFatturaWrapper.classList.remove("hidden");
-  if (stato === "Pagato") dom.dPagatoWrapper.classList.remove("hidden");
 }
 
 /**
@@ -642,7 +637,7 @@ function openDetail(id) {
   (job.materiali || []).forEach((mat) => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${deriveFornitore(mat)}</td>
+      
       <td>
         <input class="inline-input"
                data-mat="${mat.id}"
