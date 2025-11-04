@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>IdeaLegno · Gestione Commesse V1.6</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-icon">IL</div>
+        <div class="brand-text">
+          <h1>Commessa Manager</h1>
+          <p>IdeaLegno · Gestione commesse e preventivi</p>
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <input id="searchCommessa" type="search" placeholder="Cerca commessa, cliente o architetto…">
+        <button id="progressToggleBtn" class="ghost-btn">Avanzamento</button>
+        <button id="newCommessaBtn" class="primary-btn">+ Nuova commessa</button>
+      </div>
+    </header>
+
+    <main id="mainLayout" class="main-layout">
+      <aside id="listPane" class="sidebar">
+        <!-- Contenuto dinamico -->
+      </aside>
+
+      <section class="detail-panel">
+        <div id="detailPlaceholder" class="detail-placeholder">
+          <h2>Seleziona una commessa</h2>
+          <p>Usa la lista commesse per aprire una commessa o creane una nuova.</p>
+        </div>
+
+        <div id="detailContent" class="detail-content hidden">
+          <div class="detail-top">
+            <div>
+              <h2 id="detailTitle" class="detail-title"></h2>
+              <p id="detailSubtitle" class="muted"></p>
+            </div>
+            <div class="detail-tabs" id="detailTabs">
+              <button class="tab-btn active" data-tab="info">Dati commessa</button>
+              <button class="tab-btn" data-tab="fatture">Fatture commessa</button>
+              <button class="tab-btn" data-tab="mobili">Mobili e dettagli</button>
+              <button id="deleteCommessaBtn" class="ghost-btn danger small">Elimina commessa</button>
+            </div>
+          </div>
+
+          <section id="tab-info" class="tab-section"></section>
+          <section id="tab-fatture" class="tab-section hidden"></section>
+          <section id="tab-mobili" class="tab-section hidden"></section>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Avanzamento overlay -->
+  <div id="progressOverlay" class="progress-overlay hidden">
+    <div class="progress-inner">
+      <div class="progress-header">
+        <h2>Avanzamento commesse</h2>
+        <button id="closeProgressBtn" class="ghost-btn small">Chiudi</button>
+      </div>
+      <div id="progressGrid" class="progress-grid"></div>
+    </div>
+  </div>
+
+  <!-- Modale nuova commessa -->
+  <div id="commessaModal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Nuova commessa</h3>
+        <button class="ghost-btn small" data-modal-close="commessaModal">Chiudi</button>
+      </div>
+      <form id="commessaForm" class="modal-body">
+        <label>Nome commessa</label>
+        <input name="nome" type="text" placeholder="es. Cucina Rossi" required>
+
+        <label>Numero preventivo</label>
+        <input name="preventivoNumero" type="text" placeholder="es. PREV-2025-01">
+
+        <label>Data preventivo</label>
+        <input name="preventivoData" type="date">
+
+        <label>Importo stimato (Euro)</label>
+        <input name="preventivoImporto" type="number" min="0" step="0.01" placeholder="es. 6500">
+      </form>
+      <div class="modal-footer">
+        <button type="button" class="ghost-btn" data-modal-close="commessaModal">Annulla</button>
+        <button type="submit" form="commessaForm" class="primary-btn">Crea commessa</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modale ordine -->
+  <div id="orderModal" class="modal hidden">
+    <div class="modal-content large">
+      <div class="modal-header">
+        <h3 id="orderModalTitle">Ordine materiale</h3>
+        <button class="ghost-btn small" data-modal-close="orderModal">Chiudi</button>
+      </div>
+      <div id="orderModalBody" class="modal-body"></div>
+      <div class="modal-footer">
+        <button type="button" class="ghost-btn" data-modal-close="orderModal">Chiudi</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden">Salvato</div>
+
+  <script src="documents.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
