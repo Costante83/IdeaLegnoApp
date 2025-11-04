@@ -538,7 +538,7 @@ function renderTabFatture(commessa) {
         <div class="doc-categories" id="docCategoryBar"></div>
         <div class="doc-actions">
           <input type="file" id="docUploadInput" accept=".pdf,image/jpeg,image/png" multiple>
-          <small>PDF, JPG, PNG · max 1.8MB</small>
+          <small>PDF, JPG, PNG · max 5MB</small>
         </div>
         <div id="docList" class="doc-list"></div>
         <input type="hidden" id="docActiveCat" value="fatture">
@@ -556,7 +556,7 @@ function renderTabFatture(commessa) {
         refreshDetail: false,
       }),
     categories: { fatture: "Allegati fatture" },
-    maxFileSize: 1.8 * 1024 * 1024,
+  maxFileSize: 5 * 1024 * 1024,
   });
 }
 
@@ -630,7 +630,7 @@ function renderTabMobili(commessa) {
         <div class="doc-categories" id="docCategoryBar"></div>
         <div class="doc-actions">
           <input type="file" id="docUploadInput" accept=".pdf,image/jpeg,image/png" multiple>
-          <small>PDF, JPG, PNG · max 1.8MB</small>
+          <small>PDF, JPG, PNG · max 5MB</small>
         </div>
         <div id="docList" class="doc-list"></div>
         <input type="hidden" id="docActiveCat" value="rilievi">
@@ -652,7 +652,7 @@ function renderTabMobili(commessa) {
       disegni: "Disegni",
       ordini: "Ordini",
     },
-    maxFileSize: 1.8 * 1024 * 1024,
+  maxFileSize: 5 * 1024 * 1024,
   });
 }
 
@@ -664,23 +664,16 @@ function renderOrderList(mobile) {
 
   return ordini
     .map((ordine) => {
-      const materiali = ordine.materiali || [];
-      const completed = materiali.filter((m) => m.stato === "consegnato").length;
       return `
         <div class="order-card" data-order="${ordine.id}">
-          <header>
-            <h5>${ordine.fornitore || "Fornitore non impostato"}</h5>
+          <header style="display: flex; align-items: center; gap: 0.7rem;">
+            <h5 style="margin-right: 0.7rem;">${ordine.fornitore || "Fornitore non impostato"}</h5>
             <span class="tag">${ORDER_STATE_LABEL[ordine.stato] || "Da ordinare"}</span>
+            <div class="order-actions" style="margin-left: auto; display: flex; gap: 0.45rem;">
+              <button class="ghost-btn small" data-action="ordine-apri">Dettagli</button>
+              <button class="ghost-btn small" data-action="ordine-elimina">Elimina</button>
+            </div>
           </header>
-          <div class="order-meta">
-            <span>${ordine.dataOrdine ? `Ordine: ${formatDate(ordine.dataOrdine)}` : "Data non impostata"}</span>
-            <span>Materiali: ${materiali.length}</span>
-            <span>Completi: ${completed}/${materiali.length || 0}</span>
-          </div>
-          <div class="order-actions">
-            <button class="ghost-btn small" data-action="ordine-apri">Dettagli</button>
-            <button class="ghost-btn small" data-action="ordine-elimina">Elimina</button>
-          </div>
         </div>
       `;
     })
@@ -720,9 +713,12 @@ function renderProgressOverlay() {
           const stageStrip = buildStageStrip(commessa, mobile, fatturePercent);
           return `
             <div class="progress-card">
-              <h4>${commessa.nome || "Commessa"}</h4>
-              <p class="muted">${commessa.cliente?.nome || commessa.cliente?.ragioneSociale || "Cliente non impostato"}</p>
-              <strong>${mobile.nome || "Mobile"}</strong>
+              <div style="display:flex; align-items:center; margin-bottom:0.3rem;">
+                <h4 style="margin:0; font-size:0.95rem;">${commessa.nome || "Commessa"}</h4>
+                <span class="muted" style="margin:0; font-size:0.78rem; margin-left:1.1rem;">${commessa.cliente?.nome || commessa.cliente?.ragioneSociale || "Cliente non impostato"}</span>
+                <span style="display:inline-block; width:100px;"></span>
+                <strong style="font-size:0.85rem;">${mobile.nome || "Mobile"}</strong>
+              </div>
               <div class="stage-strip">${stageStrip}</div>
             </div>
           `;

@@ -10,7 +10,7 @@
       preventivi: "Preventivi / Fatture",
       ordini: "Ordini",
     },
-    maxFileSize: 1.8 * 1024 * 1024,
+  maxFileSize: 5 * 1024 * 1024,
   };
 
   const state = {
